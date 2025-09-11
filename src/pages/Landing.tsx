@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState, useMemo, useEffect } from "react";
-import WasteWarriorsGame from "@/components/WasteWarriorsGame";
 
 export default function Landing() {
   const { isLoading, isAuthenticated, user } = useAuth();
@@ -419,7 +418,7 @@ export default function Landing() {
               <Button variant="ghost" onClick={() => document.getElementById("game")?.scrollIntoView({ behavior: "smooth" })}>
                 Play Game
               </Button>
-              <Button variant="ghost" onClick={() => document.getElementById("waste-game")?.scrollIntoView({ behavior: "smooth" })}>
+              <Button variant="ghost" onClick={() => window.open("/waste-game", "_blank", "noopener,noreferrer")}>
                 Sorting Game
               </Button>
               <Button variant="ghost" onClick={() => navigate("/dashboard")}>
@@ -1151,27 +1150,6 @@ export default function Landing() {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </section>
-
-      {/* Game: Waste Warriors */}
-      <section id="waste-game" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Game: Waste Warriors – Sorting Challenge
-            </h2>
-            <p className="text-gray-600">
-              Sort falling items into Recycling, Composting, or Landfill. Learn proper segregation while you play!
-            </p>
-          </motion.div>
-
-          <WasteWarriorsGame />
         </div>
       </section>
 

@@ -13,6 +13,7 @@ import "./types/global.d.ts";
 import Dashboard from "@/pages/Dashboard.tsx";
 import ChatWidget from "@/components/ChatWidget";
 import Challenges from "@/pages/Challenges.tsx";
+import WasteGame from "@/pages/WasteGame.tsx";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -53,6 +54,8 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/challenges" element={<Challenges />} />
+            {/* New standalone route for Waste Warriors game */}
+            <Route path="/waste-game" element={<WasteGame />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           {/* Add site-wide floating chat widget */}
