@@ -53,6 +53,10 @@ export default function Landing() {
   // Add ref for the 3D deforestation section
   const deforestRef = useRef<HTMLDivElement | null>(null);
 
+  // Add: Page-wide 3-phase progression state
+  const [phase, setPhase] = useState<number>(1);
+  const phaseClass = useMemo(() => (phase === 1 ? "phase-1" : phase === 2 ? "phase-2" : "phase-3"), [phase]);
+
   const resetGame = () => {
     setTrash(
       Array.from({ length: 10 }).map((_, i) => ({
@@ -172,7 +176,7 @@ export default function Landing() {
       name: "Rajveer Singh",
       school: "DAV Public School, Jalandhar",
       quote: "The real-world challenges helped me understand how I can make a difference in my community.",
-      quotePunjabi: "ਅਸਲ ਸੰਸਾਰ ਦੀਆਂ ਚੁਣੌਤੀਆਂ ਨੇ ਮੈਨੂੰ ਸਮਝਾਇਆ ਕਿ ਮੈਂ ਆਪਣੇ ਭਾਈਚਾਰੇ ਵਿੱਚ ਕਿਵੇਂ ਫਰਕ ਲਿਆ ਸਕਦਾ ਹਾਂ।",
+      quotePunjab: "ਅਸਲ ਸੰਸਾਰ ਦੀਆਂ ਚੁਣੌਤੀਆਂ ਨੇ ਮੈਨੂੰ ਸਮਝਾਇਆ ਕਿ ਮੈਂ ਆਪਣੇ ਭਾਈਚਾਰੇ ਵਿੱਚ ਕਿਵੇਂ ਫਰਕ ਲਿਆ ਸਕਦਾ ਹਾਂ।",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
     },
     {
@@ -284,6 +288,24 @@ export default function Landing() {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
+
+  // Add: Global scroll-based phase updater (top=green, mid=pollution, bottom=end)
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      const p = max > 0 ? window.scrollY / max : 0;
+      const next = p < 0.33 ? 1 : p < 0.66 ? 2 : 3;
+      if (next !== phase) setPhase(next);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [phase]);
 
   // Quick helpers used by buttons
   function scrollToCalculator() {
@@ -463,7 +485,36 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+    <div className={`page-root min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 ${phaseClass}`}>
+      {/* Add: Global phase styles and overlays */}
+      <style>
+        {`
+          /* Page-wide visual shifts driven by phase class on root */
+          .phase-1 .page-root { filter: none; }
+          .phase-2 .page-root { filter: saturate(0.9) sepia(0.15) hue-rotate(-10deg) contrast(1.02); }
+          .phase-3 .page-root { filter: grayscale(0.95) contrast(0.85) brightness(0.92); }
+
+          /* Ensure transitions feel natural */
+          .page-root { transition: filter 400ms ease; }
+        `}
+      </style>
+
+      {/* Overlays: smog (phase 2+) and ash/noise (phase 3) */}
+      <div className="pointer-events-none fixed inset-0 z-[5]" aria-hidden="true">
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-600/50 to-gray-900/70 transition-opacity duration-500"
+          style={{ opacity: phase === 2 ? 0.25 : phase === 3 ? 0.55 : 0 }}
+        />
+        <div
+          className="absolute inset-0 transition-opacity duration-500"
+          style={{
+            backgroundImage: "radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px)",
+            backgroundSize: "3px 3px",
+            opacity: phase === 3 ? 0.35 : 0,
+          }}
+        />
+      </div>
+
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-green-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1207,7 +1258,7 @@ export default function Landing() {
 
                 <div className="space-y-4">
                   <h1 className="text-6xl md:text-7xl font-black leading-tight">
-                    <span className="block bg-gradient-to-r from-white via-orange-2 00 to-amber-300 bg-clip-text text-transparent animate-pulse">
+                    <span className="block bg-gradient-to-r from-white via-orange-200 to-amber-300 bg-clip-text text-transparent animate-pulse">
                       Carbon
                     </span>
                     <span className="block bg-gradient-to-r from-orange-300 via-white to-green-300 bg-clip-text text-transparent typing-animation">
