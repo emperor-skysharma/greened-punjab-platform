@@ -51,14 +51,38 @@ export default function Landing() {
   const phaseClass = "";
 
   // Stub out What-if AI references to avoid errors (feature disabled here)
-  const whatIfInput = "";
-  const whatIfLoading = false;
-  const setWhatIfLoading = (_val: boolean) => {};
-  const setWhatIfResponse = (_val: string) => {};
-  const whatIfAction = async (_args: { prompt: string; mode: "story" | "video"; model: string }) => ({
-    success: false as const,
-    error: "Feature currently disabled",
-  });
+  // REPLACE STUBS WITH REAL STATE AND A LOCAL GENERATOR
+  const [whatIfInput, setWhatIfInput] = useState<string>("");
+  const [whatIfLoading, setWhatIfLoading] = useState<boolean>(false);
+  const [whatIfResponse, setWhatIfResponse] = useState<string>("");
+
+  // Local generator to simulate AI responses without backend
+  const whatIfAction: (
+    args: { prompt: string; mode: "story" | "video"; model: string }
+  ) => Promise<{ success: true; content: string } | { success: false; error: string }> = async ({
+    prompt,
+    mode,
+  }) => {
+    const cleaned = prompt.trim();
+    if (!cleaned) return { success: false, error: "Please enter a prompt." };
+
+    const now = new Date().toLocaleString();
+    const baseIntro =
+      mode === "story"
+        ? `Here's a short, realistic story about the impact of "${cleaned}":\n\n`
+        : `Here's a concise video script about the impact of "${cleaned}":\n\n`;
+
+    const bodyStory = `Act 1 — Today:\n• Choice: ${cleaned}\n• Immediate impact: a bit more energy, a bit more waste, a bit more emissions.\n\nAct 2 — Ripple Effects:\n• Over a month: measurably higher CO₂ footprint, more landfill, more air pollution.\n• Community: habits spread; small choices scale when many people do the same.\n\nAct 3 — If We Change:\n• Swap with greener alternatives (public transit, reusables, efficient devices).\n• Result: lower bills, cleaner air, healthier communities.\n\nTakeaway:\nSmall, repeated actions become big outcomes. Track, reduce, and share your wins.`;
+
+    const bodyVideo = `Hook (0–5s):\n"What if ${cleaned} became our daily default?"\n\nSetup (5–20s):\n• Each action emits CO₂, uses resources, and creates waste.\n• Alone it seems small; together it scales fast.\n\nImpact (20–40s):\n• Monthly: higher emissions and costs.\n• City-wide: noticeable smog days, fuller landfills, stressed grids.\n\nBetter Choice (40–55s):\n• Swap: efficient habits, shared transport, reusables.\n• Visual: meter dropping, skies clearing.\n\nCTA (55–60s):\n"Try one swap this week. Share your impact."`;
+
+    const content =
+      baseIntro +
+      (mode === "story" ? bodyStory : bodyVideo) +
+      `\n\nGenerated at: ${now}`;
+
+    return { success: true, content };
+  };
 
   // Minimal data for sections
   const stats = [
@@ -97,7 +121,7 @@ export default function Landing() {
     {
       icon: <Award className="h-6 w-6 text-green-600" />,
       title: "Recognition",
-      description: "Get recognized for consistency and initiative.",
+      description: "get recognized for consistency and initiative.",
     },
   ];
 
@@ -433,6 +457,10 @@ export default function Landing() {
               <Button variant="ghost" onClick={() => document.getElementById("videos")?.scrollIntoView({ behavior: "smooth" })}>
                 Watch Videos
               </Button>
+              {/* ADD: What if! nav button */}
+              <Button variant="ghost" onClick={() => document.getElementById("whatif")?.scrollIntoView({ behavior: "smooth" })}>
+                What if!
+              </Button>
               <Button variant="ghost" onClick={() => document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" })}>
                 Carbon Calculator
               </Button>
@@ -548,44 +576,65 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose GreenEd Punjab?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our platform combines cutting-edge gamification with real-world environmental action
-            </p>
-          </motion.div>
+      {/* What if! Section */}
+      <section id="whatif" className="py-0">
+        <style>
+          {`
+            .whatif-hero {
+              background: radial-gradient(1200px 400px at 20% -10%, rgba(34,197,94,.25), transparent 60%),
+                          radial-gradient(1000px 500px at 120% 10%, rgba(59,130,246,.25), transparent 60%),
+                          linear-gradient(135deg, #0f172a, #064e3b);
+            }
+            .whatif-grid { background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+                                            linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+                           background-size: 40px 40px; }
+          `}
+        </style>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
-                  <CardHeader>
-                    <div className="mb-4">{feature.icon}</div>
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-gray-600 leading-relaxed">
-                      {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+        <div className="whatif-hero text-white min-h-[70vh] flex items-center relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20 whatif-grid" />
+          <div className="relative max-w-5xl mx-auto px-6 py-20 z-10 w-full">
+            <div className="text-center mb-10">
+              <h2 className="text-5xl md:text-6xl font-black tracking-tight">
+                <span className="bg-gradient-to-r from-emerald-300 via-white to-sky-300 bg-clip-text text-transparent">what if!</span>
+              </h2>
+              <p className="mt-4 text-emerald-100/90 max-w-2xl mx-auto">
+                Ask about real-life consequences of daily actions. Get a story or a quick video script.
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/15 shadow-xl">
+              <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+                <input
+                  value={whatIfInput}
+                  onChange={(e) => setWhatIfInput(e.target.value)}
+                  placeholder="e.g., What if I drive 10km daily instead of taking the bus?"
+                  className="flex-1 px-4 py-3 rounded-xl bg-white/90 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                />
+                <div className="flex gap-2">
+                  <button
+                    disabled={whatIfLoading || !whatIfInput.trim()}
+                    onClick={() => handleWhatIf("story")}
+                    className="px-4 py-3 rounded-xl font-semibold bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50"
+                  >
+                    {whatIfLoading ? "Generating..." : "Story"}
+                  </button>
+                  <button
+                    disabled={whatIfLoading || !whatIfInput.trim()}
+                    onClick={() => handleWhatIf("video")}
+                    className="px-4 py-3 rounded-xl font-semibold bg-sky-500 hover:bg-sky-600 disabled:opacity-50"
+                  >
+                    {whatIfLoading ? "Generating..." : "Video"}
+                  </button>
+                </div>
+              </div>
+
+              {whatIfResponse && (
+                <div className="mt-6 bg-white/80 text-gray-800 rounded-2xl p-5 md:p-6 max-h-[420px] overflow-auto">
+                  <pre className="whitespace-pre-wrap leading-relaxed">{whatIfResponse}</pre>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
