@@ -11,6 +11,8 @@ import Landing from "./pages/Landing.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import "./types/global.d.ts";
 import Dashboard from "@/pages/Dashboard.tsx";
+import ChatWidget from "@/components/ChatWidget";
+import Challenges from "@/pages/Challenges.tsx";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -50,8 +52,11 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/challenges" element={<Challenges />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          {/* Add site-wide floating chat widget */}
+          <ChatWidget />
         </BrowserRouter>
         <Toaster />
       </ConvexAuthProvider>
