@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState, useMemo, useEffect } from "react";
+import { useAction } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function Landing() {
   const { isLoading, isAuthenticated, user } = useAuth();
@@ -40,6 +42,14 @@ export default function Landing() {
   );
   const [cleaned, setCleaned] = useState<number>(0);
 
+  // Add What If! local state just after other state hooks
+  const [whatIfInput, setWhatIfInput] = useState<string>("");
+  const [whatIfLoading, setWhatIfLoading] = useState<boolean>(false);
+  const [whatIfResponse, setWhatIfResponse] = useState<string>("");
+
+  // Prepare convex action
+  const whatIfAction = useAction(api.ai.whatIf);
+
   const resetGame = () => {
     setTrash(
       Array.from({ length: 10 }).map((_, i) => ({
@@ -55,6 +65,12 @@ export default function Landing() {
     setTrash((t) => t.filter((item) => item.id !== id));
     setCleaned((c) => c + 1);
   };
+
+  // Add a helper to scroll to What If section
+  function scrollToWhatIf() {
+    const el = document.getElementById("whatif");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   // Carbon score calculation (very simplified, illustrative only)
   const carbonScore = useMemo(() => {
@@ -312,6 +328,27 @@ export default function Landing() {
     }
   }
 
+  async function handleWhatIf(mode: "story" | "video") {
+    if (!whatIfInput.trim() || whatIfLoading) return;
+    setWhatIfLoading(true);
+    try {
+      const res = await whatIfAction({
+        prompt: whatIfInput.trim(),
+        mode,
+        model: "google/gemini-pro",
+      });
+      if (!res?.success) {
+        setWhatIfResponse(res?.error || "Could not generate a response. Please try again.");
+      } else {
+        setWhatIfResponse(res.content);
+      }
+    } catch {
+      setWhatIfResponse("Unexpected error. Please try again.");
+    } finally {
+      setWhatIfLoading(false);
+    }
+  }
+
   function calculateFootprint() {
     const valNum = (id: string, def = 0) => parseFloat((document.getElementById(id) as HTMLInputElement | null)?.value || String(def)) || def;
     const valInt = (id: string, def = 0) => parseInt((document.getElementById(id) as HTMLSelectElement | null)?.value || String(def)) || def;
@@ -439,6 +476,9 @@ export default function Landing() {
                   Login / Sign up
                 </Button>
               )}
+              <Button variant="ghost" onClick={scrollToWhatIf}>
+                What if!
+              </Button>
             </div>
           </div>
         </div>
@@ -523,6 +563,68 @@ export default function Landing() {
                 </Card>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* What If! Section */}
+      <section id="whatif" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-5xl md:text-6xl font-black tracking-tight">
+              <span className="bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent">
+                what if!
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Ask about real-life consequences of daily actions. Get a short story or video-style outline with actionable tips.
+            </p>
+          </motion.div>
+
+          <div className="bg-white rounded-2xl shadow-sm border p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                value={whatIfInput}
+                onChange={(e) => setWhatIfInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !whatIfLoading && whatIfInput.trim()) handleWhatIf("story");
+                }}
+                placeholder='e.g., "What if I leave the fan on all day?" or "What if I drink bottled water daily?"'
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                aria-label="Ask What if!"
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleWhatIf("story")}
+                  disabled={whatIfLoading || !whatIfInput.trim()}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {whatIfLoading ? "Thinking..." : "Generate Story"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleWhatIf("video")}
+                  disabled={whatIfLoading || !whatIfInput.trim()}
+                >
+                  {whatIfLoading ? "Thinking..." : "Video Outline"}
+                </Button>
+              </div>
+            </div>
+
+            {whatIfResponse && (
+              <div className="mt-6">
+                <Card className="border-0 shadow-md">
+                  <CardContent className="prose max-w-none p-6">
+                    <pre className="whitespace-pre-wrap text-gray-800">{whatIfResponse}</pre>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       </section>

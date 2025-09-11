@@ -87,6 +87,34 @@ async function fetchWikipediaSummary(query: string): Promise<{ content: string }
   }
 }
 
+function generateLocalWhatIf(prompt: string, mode: "story" | "video"): string {
+  const action = prompt.trim();
+  if (mode === "video") {
+    return [
+      "Title: What if I " + action + "?",
+      "",
+      "Hook (0:00–0:10): A normal day, a small choice.",
+      "Scene 1 (0:10–0:30): The action happens. Immediate, unnoticed effects.",
+      "Scene 2 (0:30–1:00): Scale up to a classroom, a neighborhood, a city. Energy, waste, or emissions add up.",
+      "Scene 3 (1:00–1:30): Ripple effects—air quality, bills, noise, health, wildlife.",
+      "Scene 4 (1:30–2:00): Contrast with a better choice—simple habit change, small tools, reminders.",
+      "Call to Action (2:00–2:15): Try this today: 1) Make it easy; 2) Track once a week; 3) Share the habit.",
+    ].join("\n");
+  }
+  return [
+    "What if: " + action,
+    "",
+    "Imagine this as a short story: You choose the easy path today—no big deal. But over days, that small choice adds up. Energy is used when nobody benefits, bills climb rupee by rupee, and the neighborhood feels just a bit warmer, noisier, or more cluttered. Scale it to a school, then a city—suddenly the invisible becomes visible as air quality dips and waste rises.",
+    "",
+    "Now, flip the scene: the same action with a tiny tweak. You pause for 3 seconds, switch off what isn't needed, reuse what you already have, and set a reminder. At home, your space feels calmer; at school, others follow; in your community, the signal spreads. That small change, repeated, becomes a story of shared savings and cleaner air.",
+    "",
+    "Try this today: 1) Make the good choice the easy choice (keep it near, label it); 2) Track it once a week; 3) Share your tip with one friend.",
+  ].join("\n");
+}
+
+const SYSTEM_PROMPT_WHATIF =
+  "You are EcoMentor for a feature called 'What if!'. When users ask about everyday actions (e.g., 'What if I leave the fan on all day?'), reply with either a short cinematic story or a concise video outline explaining likely real-world consequences. Be practical, India/Punjab-context aware, and concise. Avoid strict claims; prefer ranges, approximations, and steps to verify. Keep to ~8-12 sentences for story mode. For video mode, produce a crisp outline with sections (Hook, Scenes, CTA). Always end with 2-3 actionable tips.";
+
 export const chat = action({
   args: {
     messages: v.array(
@@ -191,6 +219,73 @@ export const chat = action({
       return {
         success: false as const,
         error: "Unexpected error. Please try again.",
+      };
+    }
+  },
+});
+
+export const whatIf = action({
+  args: {
+    prompt: v.string(),
+    mode: v.optional(v.union(v.literal("story"), v.literal("video"))),
+    model: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const question = args.prompt.trim();
+    if (!question) {
+      return { success: false as const, error: "Please enter a scenario to explore." };
+    }
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    const mode = args.mode || "story";
+    const model = args.model || "google/gemini-pro";
+
+    // If no key, return a locally generated narrative/outline
+    if (!apiKey) {
+      return { success: true as const, content: generateLocalWhatIf(question, mode) };
+    }
+
+    const messages: Array<{ role: "system" | "user"; content: string }> = [
+      { role: "system", content: SYSTEM_PROMPT_WHATIF },
+      { role: "user", content: `Mode: ${mode}\nQuestion: ${question}` },
+    ];
+
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://app",
+          "X-Title": "GreenEd Punjab - What if!",
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.7,
+          max_tokens: 700,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        // Fall back to local generation on error
+        return {
+          success: true as const,
+          content: generateLocalWhatIf(question, mode) + (text ? `\n\n(Note: AI fallback used)` : ""),
+        };
+      }
+
+      const data = (await res.json()) as any;
+      const content =
+        data?.choices?.[0]?.message?.content ??
+        generateLocalWhatIf(question, mode);
+      return { success: true as const, content };
+    } catch {
+      // On any unexpected error, use local fallback
+      return {
+        success: true as const,
+        content: generateLocalWhatIf(question, mode) + "\n\n(Note: AI fallback used)",
       };
     }
   },
