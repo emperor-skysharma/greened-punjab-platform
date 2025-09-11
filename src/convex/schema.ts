@@ -97,6 +97,25 @@ const schema = defineSchema(
       profileCompleted: v.optional(v.boolean()),
       bio: v.optional(v.string()),
       interests: v.optional(v.array(v.string())),
+
+      // Added: account type and verification fields
+      accountType: v.optional(
+        v.union(
+          v.literal("school_admin"),
+          v.literal("student"),
+          v.literal("ngo_admin"),
+          v.literal("citizen")
+        )
+      ),
+      verified: v.optional(v.boolean()),
+      verifiedBy: v.optional(v.id("users")), // verifier userId
+      verifiedByOrg: v.optional(v.string()), // org/school/NGO name
+      verificationRole: v.optional(
+        v.union(
+          v.literal("school"),
+          v.literal("ngo")
+        )
+      ),
     }).index("email", ["email"])
       .index("by_role", ["role"])
       .index("by_school", ["school"])

@@ -18,10 +18,76 @@ import {
   Heart
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useState, useMemo } from "react";
 
 export default function Landing() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  // Carbon calculator state
+  const [householdSize, setHouseholdSize] = useState<number>(4);
+  const [electricityKwh, setElectricityKwh] = useState<number>(150);
+  const [vehicleKm, setVehicleKm] = useState<number>(50);
+  const [meatMealsPerWeek, setMeatMealsPerWeek] = useState<number>(6);
+
+  // Simple "clean the park" game state
+  const [trash, setTrash] = useState<Array<{ id: number; x: number; y: number }>>(
+    Array.from({ length: 10 }).map((_, i) => ({
+      id: i + 1,
+      x: Math.random() * 80 + 10,
+      y: Math.random() * 40 + 10,
+    }))
+  );
+  const [cleaned, setCleaned] = useState<number>(0);
+
+  const resetGame = () => {
+    setTrash(
+      Array.from({ length: 10 }).map((_, i) => ({
+        id: i + 1,
+        x: Math.random() * 80 + 10,
+        y: Math.random() * 40 + 10,
+      }))
+    );
+    setCleaned(0);
+  };
+
+  const handleClean = (id: number) => {
+    setTrash((t) => t.filter((item) => item.id !== id));
+    setCleaned((c) => c + 1);
+  };
+
+  // Carbon score calculation (very simplified, illustrative only)
+  const carbonScore = useMemo(() => {
+    const elec = electricityKwh * 0.82; // kg CO2 / kWh approximation (varies by grid)
+    const travel = vehicleKm * 0.12; // kg CO2 / km for small car
+    const diet = meatMealsPerWeek * 3.3; // kg CO2 / meal
+    const perCapita = (elec + travel + diet) / Math.max(1, householdSize);
+    return Math.round(perCapita);
+  }, [electricityKwh, vehicleKm, meatMealsPerWeek, householdSize]);
+
+  const recommendedTasks = useMemo(() => {
+    if (carbonScore < 30) {
+      return [
+        "Plant 1 tree this month",
+        "Host a cleanliness drive in your locality",
+        "Cycle or walk for short trips (under 2 km)",
+      ];
+    }
+    if (carbonScore < 70) {
+      return [
+        "Replace 5 bulbs with LEDs",
+        "Carpool 2 days per week",
+        "Eat 2 meat-free days per week",
+        "Segregate waste and compost wet waste",
+      ];
+    }
+    return [
+      "Install a smart power strip to reduce standby usage",
+      "Use public transport 3 days a week",
+      "Switch to a pressure cooker/induction for daily cooking",
+      "Pledge to plant 3 trees this season",
+    ];
+  }, [carbonScore]);
 
   const features = [
     {
@@ -120,22 +186,32 @@ export default function Landing() {
               <span className="text-xl font-bold text-gray-900">GreenEd Punjab</span>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={() => document.getElementById("videos")?.scrollIntoView({ behavior: "smooth" })}>
+                Watch Videos
+              </Button>
+              <Button variant="ghost" onClick={() => document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" })}>
+                Carbon Calculator
+              </Button>
+              <Button variant="ghost" onClick={() => document.getElementById("game")?.scrollIntoView({ behavior: "smooth" })}>
+                Play Game
+              </Button>
+              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                Challenges
+              </Button>
               {isAuthenticated ? (
                 <Button 
                   onClick={() => navigate("/dashboard")}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Dashboard
-                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
                 <Button 
                   onClick={() => navigate("/auth")}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Login / Sign up
                 </Button>
               )}
             </div>
@@ -265,6 +341,221 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Watch Videos Section */}
+      <section id="videos" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Watch & Learn
+            </h2>
+            <p className="text-gray-600">
+              Handpicked environmental videos to inspire action
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all">
+              <CardHeader>
+                <CardTitle>Climate Change Basics</CardTitle>
+                <CardDescription>Understand the science in minutes</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="aspect-video">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/ffjIyms1BX4"
+                    title="Climate Change Basics"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all">
+              <CardHeader>
+                <CardTitle>Plastic Pollution</CardTitle>
+                <CardDescription>How plastics affect our ecosystems</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="aspect-video">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/9m9XQFQ9R0E"
+                    title="Plastic Pollution Explained"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Carbon Footprint Calculator */}
+      <section id="calculator" className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Carbon Footprint Calculator
+            </h2>
+            <p className="text-gray-600">Get your score and personalized tasks</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-5 gap-6">
+            <Card className="md:col-span-3 border-0 shadow-md">
+              <CardHeader>
+                <CardTitle>Inputs</CardTitle>
+                <CardDescription>Quick estimate for daily impact</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <label className="text-sm text-gray-600">Household size</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={householdSize}
+                    onChange={(e) => setHouseholdSize(Number(e.target.value || 1))}
+                    className="mt-1 w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">Electricity use (kWh/day)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={electricityKwh}
+                    onChange={(e) => setElectricityKwh(Number(e.target.value || 0))}
+                    className="mt-1 w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">Vehicle travel (km/day)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={vehicleKm}
+                    onChange={(e) => setVehicleKm(Number(e.target.value || 0))}
+                    className="mt-1 w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">Meat meals per week</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={meatMealsPerWeek}
+                    onChange={(e) => setMeatMealsPerWeek(Number(e.target.value || 0))}
+                    className="mt-1 w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-2 border-0 shadow-md">
+              <CardHeader>
+                <CardTitle>Your Score</CardTitle>
+                <CardDescription>kg CO2 per person (daily estimate)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-green-600 mb-2">{carbonScore}</div>
+                  <Badge variant="outline" className="mb-4">
+                    {carbonScore < 30 ? "Great" : carbonScore < 70 ? "Moderate" : "High"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold mb-2">Recommended tasks</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                    {recommendedTasks.map((t, i) => (
+                      <li key={i}>{t}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-4">
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => navigate("/dashboard")}
+                  >
+                    View Challenges
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Game: Clean the Park */}
+      <section id="game" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Game: Clean the Park
+            </h2>
+            <p className="text-gray-600">
+              Click the litter to clean up! Score: {cleaned} / 10
+            </p>
+          </motion.div>
+
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-4">
+              <div className="relative h-72 rounded-xl overflow-hidden"
+                   style={{
+                     backgroundImage:
+                       "url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80&auto=format&fit=crop')",
+                     backgroundSize: "cover",
+                     backgroundPosition: "center",
+                   }}>
+                {trash.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => handleClean(t.id)}
+                    className="absolute h-8 w-8 rounded-full bg-yellow-400/90 hover:bg-yellow-500 border border-yellow-600 shadow"
+                    style={{ left: `${t.x}%`, top: `${t.y}%` }}
+                    aria-label="Pick up litter"
+                    title="Pick up litter"
+                  />
+                ))}
+                {trash.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-white/80 backdrop-blur p-6 rounded-lg text-center">
+                      <p className="text-xl font-semibold text-green-700 mb-2">Great job!</p>
+                      <p className="text-gray-700 mb-4">The park is clean again 🌿</p>
+                      <Button onClick={resetGame} className="bg-green-600 hover:bg-green-700">
+                        Play Again
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button variant="outline" onClick={resetGame}>Reset</Button>
+                <Button variant="outline" onClick={() => document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" })}>
+                  Reduce Your Real Impact
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
