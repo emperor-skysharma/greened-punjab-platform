@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,12 +26,24 @@ export default function ChatWidget() {
     {
       role: "assistant",
       content:
-        "Hi! I’m EcoMentor. Ask me anything about the environment, challenges, quizzes, or tips to reduce your carbon footprint.",
+        "Hi! I'm EcoMentor. Ask me anything about the environment, challenges, quizzes, or tips to reduce your carbon footprint.",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom on open
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        listRef.current?.scrollTo({
+          top: listRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 30);
+    }
+  }, [open]);
 
   const chatAction = useAction(api.ai.chat);
 
@@ -57,7 +69,7 @@ export default function ChatWidget() {
           {
             role: "assistant",
             content:
-              "I’m having trouble reaching my brain right now. Please try again in a moment.",
+              "I'm having trouble reaching my brain right now. Please try again in a moment.",
           },
         ]);
       } else {
@@ -91,7 +103,7 @@ export default function ChatWidget() {
 
   return (
     <>
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-3 right-3 md:bottom-6 md:right-6 z-50 pb-[env(safe-area-inset-bottom)]">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
@@ -102,7 +114,7 @@ export default function ChatWidget() {
               <MessageCircle className="h-6 w-6 text-white" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="p-0 sm:max-w-md" animated>
+          <DialogContent className="p-0 w-[96vw] sm:w-auto sm:max-w-md max-h-[85vh]" animated>
             <DialogHeader className="p-4 pb-0">
               <DialogTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-green-600" />
@@ -113,7 +125,7 @@ export default function ChatWidget() {
               </DialogDescription>
             </DialogHeader>
             <div className="p-4 pt-2">
-              <Card className="h-64 overflow-hidden border-0 bg-muted/40">
+              <Card className="h-[60vh] sm:h-80 overflow-hidden border-0 bg-muted/40">
                 <div
                   ref={listRef}
                   className="h-full overflow-y-auto p-3 space-y-3"
@@ -154,8 +166,9 @@ export default function ChatWidget() {
                   placeholder="Ask about challenges, quizzes, or climate tips..."
                   disabled={loading}
                   aria-label="Message EcoMentor"
+                  className="min-w-0"
                 />
-                <Button onClick={sendMessage} disabled={!canSend}>
+                <Button onClick={sendMessage} disabled={!canSend} className="shrink-0">
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
