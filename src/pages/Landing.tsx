@@ -42,20 +42,85 @@ export default function Landing() {
   );
   const [cleaned, setCleaned] = useState<number>(0);
 
-  // Add What If! local state just after other state hooks
-  const [whatIfInput, setWhatIfInput] = useState<string>("");
-  const [whatIfLoading, setWhatIfLoading] = useState<boolean>(false);
-  const [whatIfResponse, setWhatIfResponse] = useState<string>("");
-
-  // Prepare convex action
-  const whatIfAction = useAction(api.ai.whatIf);
-
   // Add ref for the 3D deforestation section
   const deforestRef = useRef<HTMLDivElement | null>(null);
 
-  // Add: Page-wide 3-phase progression state
-  const [phase, setPhase] = useState<number>(1);
-  const phaseClass = useMemo(() => (phase === 1 ? "phase-1" : phase === 2 ? "phase-2" : "phase-3"), [phase]);
+  // Add missing constants and data to stabilize the page
+  // ---------------------------------------------------
+  // Phase-based class removed; keep empty to avoid runtime error
+  const phaseClass = "";
+
+  // Stub out What-if AI references to avoid errors (feature disabled here)
+  const whatIfInput = "";
+  const whatIfLoading = false;
+  const setWhatIfLoading = (_val: boolean) => {};
+  const setWhatIfResponse = (_val: string) => {};
+  const whatIfAction = async (_args: { prompt: string; mode: "story" | "video"; model: string }) => ({
+    success: false as const,
+    error: "Feature currently disabled",
+  });
+
+  // Minimal data for sections
+  const stats = [
+    { number: "25K+", label: "Students Engaged" },
+    { number: "1.2K", label: "Challenges Completed" },
+    { number: "120+", label: "Schools Onboarded" },
+    { number: "300+", label: "Community Projects" },
+  ];
+
+  const features = [
+    {
+      icon: <Users className="h-6 w-6 text-green-600" />,
+      title: "Community Learning",
+      description: "Collaborate with peers and mentors to build sustainable habits.",
+    },
+    {
+      icon: <Trophy className="h-6 w-6 text-green-600" />,
+      title: "Gamified Progress",
+      description: "Earn badges and track your growth through fun challenges.",
+    },
+    {
+      icon: <BookOpen className="h-6 w-6 text-green-600" />,
+      title: "Curated Modules",
+      description: "Learn climate science with engaging, local-context lessons.",
+    },
+    {
+      icon: <Target className="h-6 w-6 text-green-600" />,
+      title: "Action-Oriented",
+      description: "Translate learning into measurable actions in your community.",
+    },
+    {
+      icon: <Globe className="h-6 w-6 text-green-600" />,
+      title: "Real Impact",
+      description: "Reduce emissions and improve local environments together.",
+    },
+    {
+      icon: <Award className="h-6 w-6 text-green-600" />,
+      title: "Recognition",
+      description: "Get recognized for consistency and initiative.",
+    },
+  ];
+
+  const testimonials = [
+    {
+      quote: "The challenges made climate action feel achievable and fun.",
+      name: "Simran Kaur",
+      school: "Govt. Sr. Sec. School, Ludhiana",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=96&q=80&auto=format&fit=crop",
+    },
+    {
+      quote: "Our eco-club grew rapidly after using this platform.",
+      name: "Rahul Mehta",
+      school: "DAV Public School, Amritsar",
+      avatar: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=96&q=80&auto=format&fit=crop",
+    },
+    {
+      quote: "I learned practical tips we could apply at home immediately.",
+      name: "Aisha Khan",
+      school: "Sacred Heart School, Jalandhar",
+      avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=96&q=80&auto=format&fit=crop",
+    },
+  ];
 
   const resetGame = () => {
     setTrash(
@@ -72,121 +137,6 @@ export default function Landing() {
     setTrash((t) => t.filter((item) => item.id !== id));
     setCleaned((c) => c + 1);
   };
-
-  // Add a helper to scroll to What If section
-  function scrollToWhatIf() {
-    const el = document.getElementById("whatif");
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  // Carbon score calculation (very simplified, illustrative only)
-  const carbonScore = useMemo(() => {
-    const elec = electricityKwh * 0.82; // kg CO2 / kWh approximation (varies by grid)
-    const travel = vehicleKm * 0.12; // kg CO2 / km for small car
-    const diet = meatMealsPerWeek * 3.3; // kg CO2 / meal
-    const perCapita = (elec + travel + diet) / Math.max(1, householdSize);
-    return Math.round(perCapita);
-  }, [electricityKwh, vehicleKm, meatMealsPerWeek, householdSize]);
-
-  const recommendedTasks = useMemo(() => {
-    if (carbonScore < 30) {
-      return [
-        "Plant 1 tree this month",
-        "Host a cleanliness drive in your locality",
-        "Cycle or walk for short trips (under 2 km)",
-      ];
-    }
-    if (carbonScore < 70) {
-      return [
-        "Replace 5 bulbs with LEDs",
-        "Carpool 2 days per week",
-        "Eat 2 meat-free days per week",
-        "Segregate waste and compost wet waste",
-      ];
-    }
-    return [
-      "Install a smart power strip to reduce standby usage",
-      "Use public transport 3 days a week",
-      "Switch to a pressure cooker/induction for daily cooking",
-      "Pledge to plant 3 trees this season",
-    ];
-  }, [carbonScore]);
-
-  const features = [
-    {
-      icon: <BookOpen className="h-8 w-8 text-green-600" />,
-      title: "Interactive Learning",
-      titlePunjabi: "ਇੰਟਰਐਕਟਿਵ ਸਿੱਖਿਆ",
-      description: "Engaging modules on environmental science, climate change, and sustainability",
-      descriptionPunjabi: "ਵਾਤਾਵਰਣ ਵਿਗਿਆਨ, ਜਲਵਾਯੂ ਤਬਦੀਲੀ ਅਤੇ ਸਥਿਰਤਾ 'ਤੇ ਦਿਲਚਸਪ ਮਾਡਿਊਲ"
-    },
-    {
-      icon: <Trophy className="h-8 w-8 text-yellow-600" />,
-      title: "Gamified Experience",
-      titlePunjabi: "ਗੇਮੀਫਾਈਡ ਅਨੁਭਵ",
-      description: "Earn points, badges, and compete on leaderboards while learning",
-      descriptionPunjabi: "ਸਿੱਖਦੇ ਸਮੇਂ ਪੁਆਇੰਟ, ਬੈਜ ਕਮਾਓ ਅਤੇ ਲੀਡਰਬੋਰਡ 'ਤੇ ਮੁਕਾਬਲਾ ਕਰੋ"
-    },
-    {
-      icon: <Target className="h-8 w-8 text-blue-600" />,
-      title: "Real-world Challenges",
-      titlePunjabi: "ਅਸਲ ਸੰਸਾਰ ਦੀਆਂ ਚੁਣੌਤੀਆਂ",
-      description: "Complete eco-tasks and projects that make a real environmental impact",
-      descriptionPunjabi: "ਈਕੋ-ਟਾਸਕ ਅਤੇ ਪ੍ਰੋਜੈਕਟ ਪੂਰੇ ਕਰੋ ਜੋ ਅਸਲ ਵਾਤਾਵਰਣ ਪ੍ਰਭਾਵ ਬਣਾਉਂਦੇ ਹਨ"
-    },
-    {
-      icon: <Users className="h-8 w-8 text-purple-600" />,
-      title: "Community Collaboration",
-      titlePunjabi: "ਭਾਈਚਾਰਕ ਸਹਿਯੋਗ",
-      description: "Connect with peers, share projects, and learn together",
-      descriptionPunjabi: "ਸਾਥੀਆਂ ਨਾਲ ਜੁੜੋ, ਪ੍ਰੋਜੈਕਟ ਸਾਂਝੇ ਕਰੋ ਅਤੇ ਇਕੱਠੇ ਸਿੱਖੋ"
-    },
-    {
-      icon: <Award className="h-8 w-8 text-orange-600" />,
-      title: "Career Development",
-      titlePunjabi: "ਕਰੀਅਰ ਵਿਕਾਸ",
-      description: "Build your portfolio and discover green career opportunities",
-      descriptionPunjabi: "ਆਪਣਾ ਪੋਰਟਫੋਲੀਓ ਬਣਾਓ ਅਤੇ ਹਰੇ ਕਰੀਅਰ ਦੇ ਮੌਕੇ ਖੋਜੋ"
-    },
-    {
-      icon: <Globe className="h-8 w-8 text-teal-600" />,
-      title: "Multilingual Support",
-      titlePunjabi: "ਬਹੁ-ਭਾਸ਼ਾਈ ਸਹਾਇਤਾ",
-      description: "Learn in English or Punjabi with full language support",
-      descriptionPunjabi: "ਪੂਰੀ ਭਾਸ਼ਾ ਸਹਾਇਤਾ ਨਾਲ ਅੰਗਰੇਜ਼ੀ ਜਾਂ ਪੰਜਾਬੀ ਵਿੱਚ ਸਿੱਖੋ"
-    }
-  ];
-
-  const stats = [
-    { number: "10,000+", label: "Students", labelPunjabi: "ਵਿਦਿਆਰਥੀ" },
-    { number: "500+", label: "Schools", labelPunjabi: "ਸਕੂਲ" },
-    { number: "50+", label: "Challenges", labelPunjabi: "ਚੁਣੌਤੀਆਂ" },
-    { number: "25+", label: "Modules", labelPunjabi: "ਮਾਡਿਊਲ" }
-  ];
-
-  const testimonials = [
-    {
-      name: "Priya Sharma",
-      school: "Government Senior Secondary School, Amritsar",
-      quote: "This platform made learning about environment so engaging! I earned my first badge in just one week.",
-      quotePunjabi: "ਇਸ ਪਲੇਟਫਾਰਮ ਨੇ ਵਾਤਾਵਰਣ ਬਾਰੇ ਸਿੱਖਣਾ ਬਹੁਤ ਦਿਲਚਸਪ ਬਣਾ ਦਿੱਤਾ! ਮੈਂ ਸਿਰਫ਼ ਇੱਕ ਹਫ਼ਤੇ ਵਿੱਚ ਆਪਣਾ ਪਹਿਲਾ ਬੈਜ ਕਮਾਇਆ।",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      name: "Rajveer Singh",
-      school: "DAV Public School, Jalandhar",
-      quote: "The real-world challenges helped me understand how I can make a difference in my community.",
-      quotePunjab: "ਅਸਲ ਸੰਸਾਰ ਦੀਆਂ ਚੁਣੌਤੀਆਂ ਨੇ ਮੈਨੂੰ ਸਮਝਾਇਆ ਕਿ ਮੈਂ ਆਪਣੇ ਭਾਈਚਾਰੇ ਵਿੱਚ ਕਿਵੇਂ ਫਰਕ ਲਿਆ ਸਕਦਾ ਹਾਂ।",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
-    },
-    {
-      name: "Simran Kaur",
-      school: "Khalsa College, Patiala",
-      quote: "I love the Punjabi language support. It makes complex topics easier to understand.",
-      quotePunjabi: "ਮੈਨੂੰ ਪੰਜਾਬੀ ਭਾਸ਼ਾ ਦੀ ਸਹਾਇਤਾ ਪਸੰਦ ਹੈ। ਇਹ ਗੁੰਝਲਦਾਰ ਵਿਸ਼ਿਆਂ ਨੂੰ ਸਮਝਣਾ ਆਸਾਨ ਬਣਾਉਂਦਾ ਹੈ।",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
-    }
-  ];
 
   // Add helper functions and init for the advanced calculator section
   // ---------------------------------------------------------------
@@ -288,24 +238,6 @@ export default function Landing() {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
-
-  // Add: Global scroll-based phase updater (top=green, mid=pollution, bottom=end)
-  useEffect(() => {
-    const onScroll = () => {
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
-      const p = max > 0 ? window.scrollY / max : 0;
-      const next = p < 0.33 ? 1 : p < 0.66 ? 2 : 3;
-      if (next !== phase) setPhase(next);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [phase]);
 
   // Quick helpers used by buttons
   function scrollToCalculator() {
@@ -485,36 +417,7 @@ export default function Landing() {
   }
 
   return (
-    <div className={`page-root min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 ${phaseClass}`}>
-      {/* Add: Global phase styles and overlays */}
-      <style>
-        {`
-          /* Page-wide visual shifts driven by phase class on root */
-          .phase-1 .page-root { filter: none; }
-          .phase-2 .page-root { filter: saturate(0.9) sepia(0.15) hue-rotate(-10deg) contrast(1.02); }
-          .phase-3 .page-root { filter: grayscale(0.95) contrast(0.85) brightness(0.92); }
-
-          /* Ensure transitions feel natural */
-          .page-root { transition: filter 400ms ease; }
-        `}
-      </style>
-
-      {/* Overlays: smog (phase 2+) and ash/noise (phase 3) */}
-      <div className="pointer-events-none fixed inset-0 z-[5]" aria-hidden="true">
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-600/50 to-gray-900/70 transition-opacity duration-500"
-          style={{ opacity: phase === 2 ? 0.25 : phase === 3 ? 0.55 : 0 }}
-        />
-        <div
-          className="absolute inset-0 transition-opacity duration-500"
-          style={{
-            backgroundImage: "radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px)",
-            backgroundSize: "3px 3px",
-            opacity: phase === 3 ? 0.35 : 0,
-          }}
-        />
-      </div>
-
+    <div className="page-root min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-green-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -557,9 +460,6 @@ export default function Landing() {
                   Login / Sign up
                 </Button>
               )}
-              <Button variant="ghost" onClick={scrollToWhatIf}>
-                What if!
-              </Button>
             </div>
           </div>
         </div>
@@ -644,68 +544,6 @@ export default function Landing() {
                 </Card>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What If! Section */}
-      <section id="whatif" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-5xl md:text-6xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent">
-                what if!
-              </span>
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Ask about real-life consequences of daily actions. Get a short story or video-style outline with actionable tips.
-            </p>
-          </motion.div>
-
-          <div className="bg-white rounded-2xl shadow-sm border p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                value={whatIfInput}
-                onChange={(e) => setWhatIfInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !whatIfLoading && whatIfInput.trim()) handleWhatIf("story");
-                }}
-                placeholder='e.g., "What if I leave the fan on all day?" or "What if I drink bottled water daily?"'
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                aria-label="Ask What if!"
-              />
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => handleWhatIf("story")}
-                  disabled={whatIfLoading || !whatIfInput.trim()}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  {whatIfLoading ? "Thinking..." : "Generate Story"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleWhatIf("video")}
-                  disabled={whatIfLoading || !whatIfInput.trim()}
-                >
-                  {whatIfLoading ? "Thinking..." : "Video Outline"}
-                </Button>
-              </div>
-            </div>
-
-            {whatIfResponse && (
-              <div className="mt-6">
-                <Card className="border-0 shadow-md">
-                  <CardContent className="prose max-w-none p-6">
-                    <pre className="whitespace-pre-wrap text-gray-800">{whatIfResponse}</pre>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
           </div>
         </div>
       </section>
