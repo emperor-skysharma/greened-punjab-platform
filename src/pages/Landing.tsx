@@ -418,7 +418,7 @@ export default function Landing() {
               <Button variant="ghost" onClick={() => document.getElementById("game")?.scrollIntoView({ behavior: "smooth" })}>
                 Play Game
               </Button>
-              <Button variant="ghost" onClick={() => window.open("/waste-game", "_blank", "noopener,noreferrer")}>
+              <Button variant="ghost" onClick={() => navigate("/waste-game")}>
                 Sorting Game
               </Button>
               <Button variant="ghost" onClick={() => navigate("/dashboard")}>
