@@ -31,3 +31,19 @@ export const getCurrentUser = async (ctx: QueryCtx) => {
   }
   return await ctx.db.get(userId);
 };
+
+/**
+ * Get badges for the current user.
+ */
+export const getUserBadges = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+
+    return await ctx.db
+      .query("userBadges")
+      .withIndex("by_user", (q: any) => q.eq("userId", user._id))
+      .collect();
+  },
+});
