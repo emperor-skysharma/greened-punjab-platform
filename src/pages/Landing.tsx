@@ -72,9 +72,38 @@ export default function Landing() {
         ? `Here's a short, realistic story about the impact of "${cleaned}":\n\n`
         : `Here's a concise video script about the impact of "${cleaned}":\n\n`;
 
-    const bodyStory = `Act 1 — Today:\n• Choice: ${cleaned}\n• Immediate impact: a bit more energy, a bit more waste, a bit more emissions.\n\nAct 2 — Ripple Effects:\n• Over a month: measurably higher CO₂ footprint, more landfill, more air pollution.\n• Community: habits spread; small choices scale when many people do the same.\n\nAct 3 — If We Change:\n• Swap with greener alternatives (public transit, reusables, efficient devices).\n• Result: lower bills, cleaner air, healthier communities.\n\nTakeaway:\nSmall, repeated actions become big outcomes. Track, reduce, and share your wins.`;
+    const bodyStory = `Act 1 — Today:
+• Choice: ${cleaned}
+• Immediate impact: a bit more energy, a bit more waste, a bit more emissions.
 
-    const bodyVideo = `Hook (0–5s):\n"What if ${cleaned} became our daily default?"\n\nSetup (5–20s):\n• Each action emits CO₂, uses resources, and creates waste.\n• Alone it seems small; together it scales fast.\n\nImpact (20–40s):\n• Monthly: higher emissions and costs.\n• City-wide: noticeable smog days, fuller landfills, stressed grids.\n\nBetter Choice (40–55s):\n• Swap: efficient habits, shared transport, reusables.\n• Visual: meter dropping, skies clearing.\n\nCTA (55–60s):\n"Try one swap this week. Share your impact."`;
+Act 2 — Ripple Effects:
+• Over a month: measurably higher CO₂ footprint, more landfill, more air pollution.
+• Community: habits spread; small choices scale when many people do the same.
+
+Act 3 — If We Change:
+• Swap with greener alternatives (public transit, reusables, efficient devices).
+• Result: lower bills, cleaner air, healthier communities.
+
+Takeaway:
+Small, repeated actions become big outcomes. Track, reduce, and share your wins.`;
+
+    const bodyVideo = `Hook (0–5s):
+"What if ${cleaned} became our daily default?"
+
+Setup (5–20s):
+• Each action emits CO₂, uses resources, and creates waste.
+• Alone it seems small; together it scales fast.
+
+Impact (20–40s):
+• Monthly: higher emissions and costs.
+• City-wide: noticeable smog days, fuller landfills, stressed grids.
+
+Better Choice (40–55s):
+• Swap: efficient habits, shared transport, reusables.
+• Visual: meter dropping, skies clearing.
+
+CTA (55–60s):
+"Try one swap this week. Share your impact."`;
 
     const content =
       baseIntro +
@@ -582,8 +611,7 @@ export default function Landing() {
           {`
             .whatif-hero {
               background: radial-gradient(1200px 400px at 20% -10%, rgba(34,197,94,.25), transparent 60%),
-                          radial-gradient(1000px 500px at 120% 10%, rgba(59,130,246,.25), transparent 60%),
-                          linear-gradient(135deg, #0f172a, #064e3b);
+                          radial-gradient(1000px 500px at 120% 10%, rgba(59,130,246,.25), transparent 60%);
             }
             .whatif-grid { background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
                                             linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
@@ -965,11 +993,6 @@ export default function Landing() {
 
         <div className="df-container">
           <div className="df-sticky">
-            {/* Meter */}
-            <div className="df-meter">
-              Destruction Meter: <span id="destructionPct">0</span>%
-            </div>
-
             {/* Title in middle */}
             <div className="df-title">
               <h2>what if!</h2>
