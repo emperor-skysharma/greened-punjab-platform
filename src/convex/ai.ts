@@ -142,7 +142,7 @@ export const chat = action({
       // else, fall through to LLM with key
     }
 
-    const model = args.model || "openai/gpt-4o";
+    const model = args.model || "google/gemini-pro";
     const messages: ChatMessage[] = [
       { role: "system", content: SYSTEM_PROMPT },
       ...FEW_SHOTS,

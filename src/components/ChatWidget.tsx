@@ -58,7 +58,7 @@ export default function ChatWidget() {
     setLoading(true);
     try {
       const result = await chatAction({
-        model: "openai/gpt-4o",
+        model: "google/gemini-pro",
         messages: next.map((m) => ({ role: m.role, content: m.content })),
       });
 
@@ -177,7 +177,7 @@ export default function ChatWidget() {
                 </Button>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                Model: gpt-4o via OpenRouter. Responses are educational and may
+                Model: Gemini Pro via OpenRouter. Responses are educational and may
                 not be perfect—verify critical info independently.
               </p>
             </div>
