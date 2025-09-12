@@ -32,16 +32,6 @@ export default function Landing() {
   const [vehicleKm, setVehicleKm] = useState<number>(50);
   const [meatMealsPerWeek, setMeatMealsPerWeek] = useState<number>(6);
 
-  // Simple "clean the park" game state
-  const [trash, setTrash] = useState<Array<{ id: number; x: number; y: number }>>(
-    Array.from({ length: 10 }).map((_, i) => ({
-      id: i + 1,
-      x: Math.random() * 80 + 10,
-      y: Math.random() * 40 + 10,
-    }))
-  );
-  const [cleaned, setCleaned] = useState<number>(0);
-
   // Add ref for the 3D deforestation section
   const deforestRef = useRef<HTMLDivElement | null>(null);
 
@@ -174,22 +164,6 @@ CTA (55–60s):
       avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=96&q=80&auto=format&fit=crop",
     },
   ];
-
-  const resetGame = () => {
-    setTrash(
-      Array.from({ length: 10 }).map((_, i) => ({
-        id: i + 1,
-        x: Math.random() * 80 + 10,
-        y: Math.random() * 40 + 10,
-      }))
-    );
-    setCleaned(0);
-  };
-
-  const handleClean = (id: number) => {
-    setTrash((t) => t.filter((item) => item.id !== id));
-    setCleaned((c) => c + 1);
-  };
 
   // Add helper functions and init for the advanced calculator section
   // ---------------------------------------------------------------
@@ -492,9 +466,6 @@ CTA (55–60s):
               </Button>
               <Button variant="ghost" onClick={() => document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" })}>
                 Carbon Calculator
-              </Button>
-              <Button variant="ghost" onClick={() => document.getElementById("game")?.scrollIntoView({ behavior: "smooth" })}>
-                Play Game
               </Button>
               <Button variant="ghost" onClick={() => navigate("/waste-game")}>
                 Sorting Game
@@ -1189,65 +1160,6 @@ CTA (55–60s):
               <div id="recommendationsList" className="space-y-3" />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Game: Clean the Park */}
-      <section id="game" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Game: Clean the Park
-            </h2>
-            <p className="text-gray-600">
-              Click the litter to clean up! Score: {cleaned} / 10
-            </p>
-          </motion.div>
-
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-4">
-              <div className="relative h-72 rounded-xl overflow-hidden"
-                   style={{
-                     backgroundImage:
-                       "url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80&auto=format&fit=crop')",
-                     backgroundSize: "cover",
-                     backgroundPosition: "center",
-                   }}>
-                {trash.map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => handleClean(t.id)}
-                    className="absolute h-8 w-8 rounded-full bg-yellow-400/90 hover:bg-yellow-500 border border-yellow-600 shadow"
-                    style={{ left: `${t.x}%`, top: `${t.y}%` }}
-                    aria-label="Pick up litter"
-                    title="Pick up litter"
-                  />
-                ))}
-                {trash.length === 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-white/80 backdrop-blur p-6 rounded-lg text-center">
-                      <p className="text-xl font-semibold text-green-700 mb-2">Great job!</p>
-                      <p className="text-gray-700 mb-4">The park is clean again 🌿</p>
-                      <Button onClick={resetGame} className="bg-green-600 hover:bg-green-700">
-                        Play Again
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Button variant="outline" onClick={resetGame}>Reset</Button>
-                <Button variant="outline" onClick={() => document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" })}>
-                  Reduce Your Real Impact
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </section>
 
