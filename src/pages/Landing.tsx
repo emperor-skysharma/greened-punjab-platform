@@ -577,12 +577,12 @@ CTA (55–60s):
       </section>
 
       {/* What if! Section */}
-      <section id="whatif" className="py-0">
+      <section id="whatif" className="py-0 scroll-mt-24">
         <style>
           {`
             .whatif-hero {
-              background: radial-gradient(1200px 400px at 20% -10%, rgba(34,197,94,.25), transparent 60%),
-                          radial-gradient(1000px 500px at 120% 10%, rgba(59,130,246,.25), transparent 60%);
+              background: radial-gradient(1200px 400px at 20% -10%, rgba(34,197,94,.35), transparent 60%),
+                          radial-gradient(1000px 500px at 120% 10%, rgba(59,130,246,.35), transparent 60%);
             }
             .whatif-grid { background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
                                             linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
@@ -590,8 +590,8 @@ CTA (55–60s):
           `}
         </style>
 
-        <div className="whatif-hero text-white min-h-[70vh] flex items-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20 whatif-grid" />
+        <div className="whatif-hero text-white min-h-[90vh] md:min-h-[100vh] flex items-center relative overflow-hidden">
+          <div className="absolute inset-0 opacity-35 whatif-grid" />
           <div className="relative max-w-5xl mx-auto px-6 py-20 z-10 w-full">
             <div className="text-center mb-10">
               <h2 className="text-5xl md:text-6xl font-black tracking-tight">
@@ -602,26 +602,26 @@ CTA (55–60s):
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/15 shadow-xl">
+            <div className="bg-white/15 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/30 shadow-2xl ring-1 ring-emerald-300/30">
               <div className="flex flex-col md:flex-row gap-3 md:gap-4">
                 <input
                   value={whatIfInput}
                   onChange={(e) => setWhatIfInput(e.target.value)}
                   placeholder="e.g., What if I drive 10km daily instead of taking the bus?"
-                  className="flex-1 px-4 py-3 rounded-xl bg-white/90 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="flex-1 px-4 py-4 md:py-5 rounded-xl bg-white/90 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-base md:text-lg"
                 />
                 <div className="flex gap-2">
                   <button
                     disabled={whatIfLoading || !whatIfInput.trim()}
                     onClick={() => handleWhatIf("story")}
-                    className="px-4 py-3 rounded-xl font-semibold bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50"
+                    className="px-5 md:px-6 py-3.5 md:py-4 rounded-xl font-semibold bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 shadow-lg hover:shadow-emerald-500/30 transition-transform hover:scale-[1.02]"
                   >
                     {whatIfLoading ? "Generating..." : "Story"}
                   </button>
                   <button
                     disabled={whatIfLoading || !whatIfInput.trim()}
                     onClick={() => handleWhatIf("video")}
-                    className="px-4 py-3 rounded-xl font-semibold bg-sky-500 hover:bg-sky-600 disabled:opacity-50"
+                    className="px-5 md:px-6 py-3.5 md:py-4 rounded-xl font-semibold bg-sky-500 hover:bg-sky-600 disabled:opacity-50 shadow-lg hover:shadow-sky-500/30 transition-transform hover:scale-[1.02]"
                   >
                     {whatIfLoading ? "Generating..." : "Video"}
                   </button>
